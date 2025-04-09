@@ -1,0 +1,289 @@
+#include <Adafruit_Fingerprint.h>
+#include <LiquidCrystal_I2C.h>
+#include <Servo.h>
+
+LiquidCrystal_I2C lcd(0x27,16,2);
+
+Servo servo_test1;
+
+#if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
+// For UNO and others without hardware serial, we must use software serial...
+// pin #2 is IN from sensor (GREEN wire)
+// pin #3 is OUT from arduino  (WHITE wire)
+// Set up the serial port to use softwareserial..
+SoftwareSerial mySerial(3, 2);
+
+#else
+// On Leonardo/M0/etc, others with hardware serial, use hardware serial!
+// #0 is green wire, #1 is white
+#define mySerial Serial1
+
+#endif
+
+int a=0,b=0,c=0,d=0,e=0;
+int b1,b2,b3;
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
+
+void setup()
+{
+  Serial.begin(9600);
+
+  servo_test1.attach(7);
+  
+  while (!Serial);  // For Yun/Leo/Micro/Zero/...
+  delay(100);
+//  Serial.println("\n\nAdafruit finger detect test");
+
+  // set the data rate for the sensor serial port
+  finger.begin(57600);
+  delay(5);
+  if (!finger.verifyPassword()) {
+//    Serial.println("Found fingerprint sensor!");
+  } else {
+//    Serial.println("Did not find fingerprint sensor :(");
+    while (1) { delay(1); }
+  }
+
+//  Serial.println(F("Reading sensor parameters"));
+  finger.getParameters();
+//  Serial.print(F("Status: 0x")); Serial.println(finger.status_reg, HEX);
+//  Serial.print(F("Sys ID: 0x")); Serial.println(finger.system_id, HEX);
+//  Serial.print(F("Capacity: ")); Serial.println(finger.capacity);
+//  Serial.print(F("Security level: ")); Serial.println(finger.security_level);
+//  Serial.print(F("Device address: ")); Serial.println(finger.device_addr, HEX);
+//  Serial.print(F("Packet len: ")); Serial.println(finger.packet_len);
+//  Serial.print(F("Baud rate: ")); Serial.println(finger.baud_rate);
+
+  finger.getTemplateCount();
+
+  if (finger.templateCount == 0) {
+//    Serial.print("Sensor doesn't contain any fingerprint data. Please run the 'enroll' example.");
+  }
+  else {
+//    Serial.println("Waiting for valid finger...");
+//      Serial.print("Sensor contains "); Serial.print(finger.templateCount); Serial.println(" templates");
+  }
+  
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("School Security ");
+  lcd.setCursor(0,1);
+  lcd.print("   Welcome      ");
+  servo_test1.write(0);
+  delay(2000);
+
+  pinMode(8,OUTPUT);
+  pinMode(9,OUTPUT);
+  pinMode(10,OUTPUT);
+  pinMode(11,OUTPUT);
+
+  digitalWrite(8,HIGH);
+  digitalWrite(9,HIGH);
+  digitalWrite(10,HIGH);
+  digitalWrite(11,HIGH);
+}
+
+void loop()                     // run over and over again
+{
+  uint8_t p = finger.getImage();
+  if(p == FINGERPRINT_OK)
+  {
+    p = finger.image2Tz();
+    p = finger.fingerSearch();
+    int f = finger.fingerID;
+    delay(50);            //don't ned to run this at full speed.
+    if(f>0)
+    {
+      if(f == 1 && a == 0)
+      {
+        digitalWrite(8,LOW);
+        digitalWrite(9,LOW);
+        digitalWrite(10,LOW);
+        digitalWrite(11,HIGH);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Access Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("Welcome Amulya  ");
+        a = 1;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      else if(f == 1 && a == 1)
+      {
+        digitalWrite(8,LOW);
+        digitalWrite(9,LOW);
+        digitalWrite(10,HIGH);
+        digitalWrite(11,LOW);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("  Exit Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("GoodBye Amulya  ");
+        a = 0;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      if(f == 2 && b == 0)
+      {
+        digitalWrite(8,LOW);
+        digitalWrite(9,LOW);
+        digitalWrite(10,HIGH);
+        digitalWrite(11,HIGH);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Access Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("Welcome Sasikala");
+        b = 1;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      else if (f == 2 && b == 1)
+      {
+        digitalWrite(8,LOW);
+        digitalWrite(9,HIGH);
+        digitalWrite(10,LOW);
+        digitalWrite(11,LOW);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("  Exit Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("GoodBye Sasikala");
+        b = 0;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      if(f == 3 && c == 0)
+      {
+        digitalWrite(8,LOW);
+        digitalWrite(9,HIGH);
+        digitalWrite(10,LOW);
+        digitalWrite(11,HIGH);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Access Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("Welcome Swaroopa");
+        c = 1;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      else if (f == 3 && c == 1)
+      {
+        digitalWrite(8,LOW);
+        digitalWrite(9,HIGH);
+        digitalWrite(10,HIGH);
+        digitalWrite(11,LOW);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("  Exit Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("GoodBye Swaroopa");
+        c = 0;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      if(f == 4 && d == 0)
+      {
+        digitalWrite(8,LOW);
+        digitalWrite(9,HIGH);
+        digitalWrite(10,HIGH);
+        digitalWrite(11,HIGH);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Access Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("Welcome Tirumula");
+        d = 1;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      else if (f == 4 && d == 1)
+      {
+        digitalWrite(8,HIGH);
+        digitalWrite(9,LOW);
+        digitalWrite(10,LOW);
+        digitalWrite(11,LOW);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("  Exit Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("GoodBye Tirumula");
+        d = 0;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      if(f == 5 && e == 0)
+      {
+        digitalWrite(8,HIGH);
+        digitalWrite(9,LOW);
+        digitalWrite(10,LOW);
+        digitalWrite(11,HIGH);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("Access Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("Welcome Student ");
+        e = 1;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+      else if (f == 5 && e == 1)
+      {
+        digitalWrite(8,HIGH);
+        digitalWrite(9,LOW);
+        digitalWrite(10,HIGH);
+        digitalWrite(11,LOW);
+        lcd.clear();
+        lcd.setCursor(0,0);
+        lcd.print("  Exit Granted  ");
+        lcd.setCursor(0,1);
+        lcd.print("GoodBye Student ");
+        e = 0;
+        servo_test1.write(90);
+        delay(4000);
+        servo_test1.write(0);
+        delay(2000);
+      }
+    }
+    else
+    {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Ur dtls nt avlbl");
+      lcd.setCursor(0,1);
+      lcd.print("contact Security");
+      delay(3000);
+    }
+  }
+  else 
+  {
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("  Place Finger  ");
+    lcd.setCursor(0,1);
+    lcd.print("   On Scanner   ");
+    delay(2000);
+  }
+}
